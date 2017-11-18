@@ -1,9 +1,9 @@
 /******************************************************************************
- *			   FILE: 	circle.c
+ *			   FILE: 	sdlgui.c
  *		           AUTHOR: 	ANAS RCHID
  *
  *           DESCRIPTION:	the approach of drawing a circle.. 
- *	     DEPENDENCY FLAGS:	`sdl2-config --cflags --libs`	
+ *	     DEPENDENCY FLAGS:	`sdl2-config --cflags --libs` -lm	
  *
  * CREATION:	11/15/2017
  * MODIFIED:	11/16/2017 
@@ -19,23 +19,32 @@
 
 #define WIDTH		(640)	/* the window width */
 #define HEIGHT		(480)	/* the window height */
+#define CENTER(axis)	(axis/2)
 
-#define OX		(WIDTH / 2)	/* X coordinate of the center  */
-#define OY		(HEIGHT / 2)	/* Y coordinate of the center  */
+/* circle's stuff */
+#define OX		CENTER(WIDTH)	/* X coordinate of the center  */
+#define OY		CENTER(HEIGHT)	/* Y coordinate of the center  */
+#define R		(200)	/* in pixels */
 
 #define STEP		(0.0001)	/* incrementation step while 
 					 * filling the plot pxels */
-
 /* colors  */
 #define BLACK		(0xFFFFFF)
 #define WHITE		(0x000000)
 
+#define TITLE		("SDL2 - WINDOW")
+
+#define COMPARE(s1, s2)	(!strcmp(s1, s2))
+
+#define NO_FLAGS	(0)
+
 /* boolean type */
 typedef enum { false = (1 == 0), true = !false } bool;
 
-/* the circle plot function  */
-Uint32 *plot(short width, short height, double center_x, double center_y,
-	     double radious);
+/* the circle plot example function  */
+Uint32 *plot(short scrn_width, short scr_height, double center_x,
+	     double center_y, double radious);
+void render_screen(int argc, char **argv);
 
 Uint32 *plot(short w, short h, double cx, double cy, double r) {
   Uint32 *pixels = malloc(w * h * sizeof(Uint32));
@@ -66,46 +75,70 @@ Uint32 *plot(short w, short h, double cx, double cy, double r) {
       {rintf(x), rintf(y)}
     };
 
-    /* pixel at (x, cy + y) */
+    /* pixel at (x, y + cy) */
     pixels[(point[0][1] + point[1][1]) * w + point[1][0]] = WHITE;
-    /* pixel at (x, cy - y) */
+    /* pixel at (x, -y + cy) */
     pixels[(point[0][1] - point[1][1]) * w + point[1][0]] = WHITE;
   }
 
   return pixels;
 }
 
-int main(int argc, char **argv) {
-  /* listen user events */
-  SDL_Event event;
-
-  /* initialize the SDL evirement */
+void renderscreen(int argc, char **argv) {
+  /* initialize the SDL environment */
   SDL_Init(SDL_INIT_VIDEO);
 
-  /* create/allocate sdl window */
-  SDL_Window *window = SDL_CreateWindow("SDL2",
-					SDL_WINDOWPOS_UNDEFINED,
-					SDL_WINDOWPOS_UNDEFINED, WIDTH, HEIGHT,
-					0);
+  SDL_Window *window;		/* sdl window */
+  SDL_Renderer *renderer;	/* window rendrer */
+  SDL_Texture *texture;		/* window texture */
 
-  /* create the renderer of the screen */
-  SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
+  SDL_Event event;		/* listen user events */
 
-  /* create the texture */
-  SDL_Texture *texture = SDL_CreateTexture(renderer,
-					   SDL_PIXELFORMAT_ARGB8888,
-					   SDL_TEXTUREACCESS_STATIC, WIDTH,
-					   HEIGHT);
-  /* create pixels to put on the screen */
-  Uint32 *pixels = malloc((WIDTH * HEIGHT * sizeof(Uint32)));;
+  int _width = WIDTH, _height = HEIGHT;	/* window width and height */
+  int _ox = OX, _oy = OY;
+  Uint32 *pixels;		/* pixels to put on the screen */
 
-  /* initialize the pixels  */
-  memset(pixels, 154, WIDTH * HEIGHT * sizeof(Uint32));
+  /* TODO: use getopt library */
+  for (int i = 0; i < argc; ++i) {
+    char *nextarg = argv[i + 1], *currentarg = argv[i];
+    bool wflag = false, hflag = false;
 
-  /* put the plot on the window */
+    if (!wflag || COMPARE(currentarg, "-w")) {
+      _width = atoi(nextarg);
+      _ox = CENTER(_width);
+      continue;
+    } else if (!hflag || COMPARE(currentarg, "-h")) {
+      _height = atoi(nextarg);
+      _oy = CENTER(_height);
+      continue;
+    }
+
+    if (wflag && hflag) {
+      break;
+    }
+  }
+
+  char *_title = TITLE;
+
+  /* 1. create/allocate sdl window */
+  window = SDL_CreateWindow(_title,
+			    SDL_WINDOWPOS_UNDEFINED,
+			    SDL_WINDOWPOS_UNDEFINED, _width, _height,
+			    NO_FLAGS);
+
+  /* 2. create the renderer of the screen */
+  renderer = SDL_CreateRenderer(window, -1, NO_FLAGS);
+
+  /* 3. create the texture */
+  texture = SDL_CreateTexture(renderer,
+			      SDL_PIXELFORMAT_ARGB8888,
+			      SDL_TEXTUREACCESS_STATIC, _width, _height);
+
+  /* generate the plot as form of pixels */
+  pixels = plot(_width, _height, _ox, _oy, R);
+
+  /* screen loop */
   do {
-    /* generate the plot as form of pixels */
-    pixels = plot(WIDTH, HEIGHT, OX, OY, 200);
     /* update the window texture */
     SDL_UpdateTexture(texture, NULL, pixels, WIDTH * sizeof(Uint32));
     /* render the window */
@@ -119,14 +152,12 @@ int main(int argc, char **argv) {
   /* free the plot pixles */
   free(pixels);
 
-  /* SDL cleanup protocols */
+  /* SDL cleanup */
   SDL_DestroyTexture(texture);
   SDL_DestroyRenderer(renderer);
-
   SDL_DestroyWindow(window);
+  /* SDL cleanup */
 
+  /* close SDL environment */
   SDL_Quit();
-  /* SDL cleanup protocols */
-
-  return 0;
 }
