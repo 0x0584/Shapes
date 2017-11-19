@@ -8,10 +8,14 @@ import GUI.Settings;
  * @author Anas Rchid
  * @version 0.0.1
  * @since the beginning */
-abstract public class Drawing {
+public class Drawing {
+	/* shared attributes */
 	protected Color fgcolor, bgcolor, fillcolor;
 	protected boolean isfillable;
-	protected Settings settings;
+
+	/* constant members */
+	protected final Settings settings = new Settings( );
+	protected final static double precision = 1e-4;
 
 	/** if `show` is false, then the Drawing is hidden
 	 *
@@ -25,7 +29,8 @@ abstract public class Drawing {
 	public boolean isHiden(boolean show) {
 		return this.isfillable = show;
 	}
- 
+
+	/* getters and setters */
 	public boolean isFillable() {
 		return isfillable;
 	}
@@ -34,7 +39,6 @@ abstract public class Drawing {
 		this.isfillable = isfillable;
 	}
 
-	/* getters and setters */
 	public Color getFgcolor() {
 		return fgcolor;
 	}
@@ -62,9 +66,4 @@ abstract public class Drawing {
 	public Settings getSettings() {
 		return settings;
 	}
-
-	public void setSettings(Settings settings) {
-		this.settings = settings;
-	}
-	
 }

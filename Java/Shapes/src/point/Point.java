@@ -10,7 +10,7 @@ import GUI.Settings;
  * 
  * @author arfed */
 public class Point extends Drawing {
-	int x, y;
+	double x, y;
 
 	public Point() {
 		this(Settings.CENTER, Settings.WHITE);
@@ -20,9 +20,9 @@ public class Point extends Drawing {
 		this(p.x, p.y, fill);
 	}
 
-	public Point(int x, int y, Color fill) {
-		this.x = x;
-		this.y = y;
+	public Point(double x2, double y2, Color fill) {
+		this.x = x2 - Settings.CENTER.getx( );
+		this.y = y2 - Settings.CENTER.gety( );
 
 		if(isfillable = (fill != null)) {
 			fgcolor = fill;
@@ -30,7 +30,7 @@ public class Point extends Drawing {
 	}
 
 	/* getters and setters */
-	public int getx() {
+	public double getx() {
 		return x;
 	}
 
@@ -38,7 +38,7 @@ public class Point extends Drawing {
 		this.x = x;
 	}
 
-	public int gety() {
+	public double gety() {
 		return y;
 	}
 
