@@ -1,12 +1,12 @@
 /******************************************************************************
- *			   FILE: 	sdlgui.c
- *		           AUTHOR: 	ANAS RCHID
- *
- *           DESCRIPTION:	the approach of drawing a circle.. 
- *	     DEPENDENCY FLAGS:	`sdl2-config --cflags --libs` -lm	
- *
- * CREATION:	11/15/2017
- * MODIFIED:	11/16/2017 
+ *			   FILE: 	sdlgui.c       	       	       	      *
+ *		           AUTHOR: 	ANAS RCHID			      *
+ *									      *
+ *           DESCRIPTION:	the approach of drawing a circle.. 	      *
+ *	     DEPENDENCY FLAGS:	`sdl2-config --cflags --libs` -lm	      *
+ *									      *
+ * CREATION:	11/15/2017						      *
+ * MODIFIED:	11/16/2017 						      *
  ******************************************************************************/
 
 #include <stdio.h>
@@ -25,7 +25,7 @@
 #define OY		CENTER(HEIGHT)	/* Y coordinate of the center  */
 #define R		(200)	/* in pixels */
 
-#define STEP		(0.0001)	/* incrementation step while 
+#define STEP		(0.0001)	/* incrementation step while
 					 * filling the plot pxels */
 /* colors  */
 #define BLACK		(0xFFFFFF)
@@ -35,7 +35,7 @@
 
 #define COMPARE(s1, s2)	(!strcmp(s1, s2))
 
-#define NO_FLAGS	(0)
+#define SDL_NO_FLAGS	(0)
 
 /* boolean type */
 typedef enum { false = (1 == 0), true = !false } bool;
@@ -45,23 +45,23 @@ Uint32 *plot(short w, short h, double cx, double cy, double r) {
 
   memset(pixels, BLACK, w * h * sizeof(Uint32));
 
-  /***********************************************************************
-   *	       circle equation: (x-cx)^2 + (y-cy)^2 = r^2
-   ***********************************************************************
-   * the upper equation gives us away to figure out the pixels places, 
-   * by looping- through `x` { starting at `cx - r` (the very least point
-   * to the left), to `cx + r` the very least point to the right } and 
-   * each time, we solve the equation to figure out the `y`, now we have
-   * a point (x, y), and we know that fo every point on one side of teh
-   * circle, there's another point on the other side.
-   * 
-   * CONCLUTION:  
-   *
-   *	1. figure out x, y 
-   *    2. plot (x, + y) the up point, 
-   *    3. plot (x - y) the low point
-   *
-   ***********************************************************************/
+  /************************************************************************
+   *	       circle equation: (x-cx)^2 + (y-cy)^2 = r^2	       	  *
+   ************************************************************************
+   * the upper equation gives us away to figure out the pixels places,	  *
+   * by looping- through `x` { starting at `cx - r` (the very least point *
+   * to the left), to `cx + r` the very least point to the right } and	  *
+   * each time, we solve the equation to figure out the `y`, now we have  *
+   * a point (x, y), and we know that fo every point on one side of teh	  *
+   * circle, there's another point on the other side.			  *
+   *									  *
+   * CONCLUTION:							  *
+   *									  *
+   *	1. figure out x, y						  *
+   *    2. plot (x, + y) the up point,					  *
+   *    3. plot (x - y) the low point					  *
+   *									  *
+   ************************************************************************/
   for (double x = (cx - r); x <= (cx + r); x += STEP) {
     double y = sqrt(abs(pow(r, 2) - pow(x - cx, 2)));
     int point[][2] = {
@@ -92,66 +92,72 @@ void renderscreen(int argc, char **argv) {
   int _ox = OX, _oy = OY;
   Uint32 *pixels;		/* pixels to put on the screen */
 
-  /* TODO: use getopt library */
-  for (int i = 0; i < argc; ++i) {
-    char *nextarg = argv[i + 1], *currentarg = argv[i];
-    bool wflag = false, hflag = false;
-
-    if (!wflag || COMPARE(currentarg, "-w")) {
-      _width = atoi(nextarg);
-      _ox = CENTER(_width);
-      continue;
-    } else if (!hflag || COMPARE(currentarg, "-h")) {
-      _height = atoi(nextarg);
-      _oy = CENTER(_height);
-      continue;
-    }
-
-    if (wflag && hflag) {
-      break;
-    }
-  }
+  /* TODO: use getopt library
+   *
+   * for (int i = 0; i < argc; ++i) {
+   *   char *nextarg = argv[i + 1], *currentarg = argv[i];
+   *   bool wflag = false, hflag = false;
+   *
+   *   if (!wflag || COMPARE(currentarg, "-w")) {
+   *     _width = atoi(nextarg);
+   *     _ox = CENTER(_width);
+   *     continue;
+   *   } else if (!hflag || COMPARE(currentarg, "-h")) {
+   *     _height = atoi(nextarg);
+   *     _oy = CENTER(_height);
+   *     continue;
+   *   }
+   *
+   *   if (wflag && hflag) {
+   *     break;
+   *   }
+   * }
+   */
 
   char *_title = TITLE;
 
-  /* 1. create/allocate sdl window */
+  /* φιλοσοφία */
+  /* 1.1. create/allocate sdl window */
   window = SDL_CreateWindow(_title,
 			    SDL_WINDOWPOS_UNDEFINED,
 			    SDL_WINDOWPOS_UNDEFINED, _width, _height,
-			    NO_FLAGS);
+			    SDL_NO_FLAGS);
 
-  /* 2. create the renderer of the screen */
-  renderer = SDL_CreateRenderer(window, -1, NO_FLAGS);
+  /* 1.2. create the renderer of the screen */
+  renderer = SDL_CreateRenderer(window, -1, SDL_NO_FLAGS);
 
-  /* 3. create the texture */
+  /* 1.3. create the texture */
   texture = SDL_CreateTexture(renderer,
 			      SDL_PIXELFORMAT_ARGB8888,
 			      SDL_TEXTUREACCESS_STATIC, _width, _height);
 
-  /* generate the plot as form of pixels */
+  /* 2. generate the plot as form of pixels */
   pixels = plot(_width, _height, _ox, _oy, R);
 
-  /* screen loop */
+  /* 3 screen loop */
   do {
-    /* update the window texture */
+    /* 3.1. update the window texture */
     SDL_UpdateTexture(texture, NULL, pixels, WIDTH * sizeof(Uint32));
-    /* render the window */
+    /* 3.2. render the window */
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, texture, NULL, NULL);
     SDL_RenderPresent(renderer);
-    /* wait for events */
+    /* 3.3. wait for events */
     SDL_WaitEvent(&event);
   } while (!(event.type == SDL_QUIT));	/* we only care for quit event */
 
-  /* free the plot pixles */
+  /* 4.1. free the plot pixles */
   free(pixels);
 
-  /* SDL cleanup */
+  /* 4.2. SDL cleanup */
   SDL_DestroyTexture(texture);
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
-  /* SDL cleanup */
 
-  /* close SDL environment */
+  /* 4.3 close SDL environment */
   SDL_Quit();
+}
+
+int main() {
+  renderscreen(0, NULL);
 }

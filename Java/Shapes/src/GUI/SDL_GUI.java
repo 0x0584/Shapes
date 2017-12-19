@@ -10,6 +10,15 @@ import point.Point;
  * @version 0.0.1
  * @since the beginning */
 public class SDL_GUI {
+	/* c function */
+	private native void __plot(int argc, String argv);
+
+	/* TODO: finish this
+	 * shared library, in this case it's the C program */
+	static {
+		System.loadLibrary("sdlgui");
+	}
+
 	public SDL_GUI() {
 		this(new Settings( ));
 	}
@@ -18,11 +27,16 @@ public class SDL_GUI {
 		this.settings = settings;
 	}
 
+	/* this is fucking */
+	public static void main(String args[]) {
+		new SDL_GUI( ).plot(new Point[2][5]);
+	}
+
 	public void plot(Point points[][]) {
 		final int height = settings.getScreenHeight( );
 		final int width = settings.getScreenWidth( );
 		final int size = height * width;
-		
+
 		int pixels[] = new int[size];
 		int argc = 0;
 
@@ -43,11 +57,11 @@ public class SDL_GUI {
 		 * 2d array in 1d array */
 		for(int j = 0; j < width; ++j) {
 			for(int i = 0; i < height; i++) {
-				pixels[(j * height) + width] = Integer.parseInt(
-						points[j][i].getSettings().getFgcolor( ).hexa, 16);
+				pixels[(j * height) + width] = Integer.parseInt(points[j][i]
+						.getSettings( ).getFgcolor( ).hexa, 16);
 			}
 		}
-		
+
 		for(int i = 0; i < size; ++i) {
 			args += " " + pixels[i];
 		}
@@ -56,12 +70,4 @@ public class SDL_GUI {
 	}
 
 	Settings settings;
-
-	private native void __plot(int argc, String argv);
-
-	/* TODO: finish this
-	 * shared library, in this case it's the C program */
-	static {
-		System.loadLibrary("sdlgui");
-	}
 }
